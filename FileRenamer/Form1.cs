@@ -20,13 +20,15 @@ namespace FileRenamer
 
         //var
         List<string> files;
-        
+        uint filesCount;
         //var
 
         private void button_rename_Click(object sender, EventArgs e)
         {
             if (Directory.Exists(textBox_folderPath.Text))
             {
+                filesCount = 0;
+
                 if (checkBox_subfolders.Checked)
                 {
                     recursionFindAll(textBox_folderPath.Text);
@@ -40,7 +42,7 @@ namespace FileRenamer
                         renameFiles(textBox_folderPath.Text);
                     }
                 }
-
+                label.Text = filesCount + " files renamed!";
                 MessageBox.Show("Done");              
             }
         }
@@ -51,7 +53,7 @@ namespace FileRenamer
         }
 
         private void recursionFindAll(string path)
-        {            
+        {
             if (checkFilesExist(path))
             {
                 cleanTempFolder(path);
@@ -113,6 +115,7 @@ namespace FileRenamer
         private void getSortedFiles(string path)
         {           
             files = Directory.GetFiles(path).OrderBy(f => new FileInfo(f).Length).ToList(); //магическая строка, якобы сортирующая файлы по размеру
+            filesCount += (uint)files.Count;
         }
 
         private bool checkFilesExist(string path)

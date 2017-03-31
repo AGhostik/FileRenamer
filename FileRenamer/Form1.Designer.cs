@@ -32,6 +32,7 @@
             this.button_rename = new System.Windows.Forms.Button();
             this.textBox_folderPath = new System.Windows.Forms.TextBox();
             this.checkBox_subfolders = new System.Windows.Forms.CheckBox();
+            this.label = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // button_browse
@@ -73,11 +74,21 @@
             this.checkBox_subfolders.Text = "including subfolders";
             this.checkBox_subfolders.UseVisualStyleBackColor = true;
             // 
+            // label
+            // 
+            this.label.AutoSize = true;
+            this.label.Location = new System.Drawing.Point(12, 69);
+            this.label.Name = "label";
+            this.label.Size = new System.Drawing.Size(16, 17);
+            this.label.TabIndex = 4;
+            this.label.Text = "//";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(477, 78);
+            this.ClientSize = new System.Drawing.Size(477, 96);
+            this.Controls.Add(this.label);
             this.Controls.Add(this.checkBox_subfolders);
             this.Controls.Add(this.textBox_folderPath);
             this.Controls.Add(this.button_rename);
@@ -96,6 +107,7 @@
         private System.Windows.Forms.Button button_rename;
         private System.Windows.Forms.TextBox textBox_folderPath;
         private System.Windows.Forms.CheckBox checkBox_subfolders;
+        private System.Windows.Forms.Label label;
     }
 }
 
