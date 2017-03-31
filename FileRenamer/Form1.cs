@@ -19,15 +19,24 @@ namespace FileRenamer
         }
 
         //var
-        IOrderedEnumerable<string> files;
+        List<string> files;
+        
         //var
 
         private void button_rename_Click(object sender, EventArgs e)
         {
             if (Directory.Exists(textBox_folderPath.Text))
             {
-                foreach (string s in files)
-                    MessageBox.Show(s);
+                if (checkBox_subfolders.Checked)
+                {
+                    recursionFindAll(textBox_folderPath.Text);
+                }
+                else
+                {
+
+                }
+
+                MessageBox.Show("Done");              
             }
         }
 
@@ -36,15 +45,75 @@ namespace FileRenamer
             selectFolder();
         }
 
-        private void sortFiles()
-        {           
-            files = Directory.GetFiles(textBox_folderPath.Text).OrderBy(f => new FileInfo(f).Length); //магическая строка, якобы сортирующая файлы по размеру
+        private void recursionFindAll(string path)
+        {            
+            if (checkFilesExist(path))
+            {
+                cleanTempFolder(path);
+                getSortedFiles(path);
+                renameFiles(path);
+            }
+
+
+            List<string> subfolders = Directory.GetDirectories(path).ToList();
+
+            if (subfolders.Count > 0)
+            {
+                foreach (string folder in subfolders) //folder - full path
+                {
+                    recursionFindAll(folder);
+                }
+            }
+            else
+            {
+                return;
+            }
         }
 
-        private bool getFileList()
+        private void renameFiles(string path)
+        {
+            int counter = 0;
+            List<string> temp_files = new List<string>();
+            List<string> files_name = new List<string>();
+
+            foreach (string s in files)
+            {
+                string filename = counter + Path.GetExtension(s).ToLower();
+                File.Move(s, path + "\\_temp\\" + filename);
+                temp_files.Add(path + "\\_temp\\" + filename);
+                files_name.Add(filename);
+                counter++;
+            }
+
+            counter = 0;
+            foreach (string s in temp_files)
+            {
+                File.Move(s, path + '\\' + files_name[counter]);
+                counter++;
+            }
+
+            Directory.Delete(path + "\\_temp", true);
+        }
+
+        private void cleanTempFolder(string path)
+        {
+            if (Directory.Exists(path + "\\_temp"))
+            {
+                Directory.Delete(path + "\\_temp", true);
+            }
+
+            Directory.CreateDirectory(path + "\\_temp");
+        }
+
+        private void getSortedFiles(string path)
+        {           
+            files = Directory.GetFiles(path).OrderBy(f => new FileInfo(f).Length).ToList(); //магическая строка, якобы сортирующая файлы по размеру
+        }
+
+        private bool checkFilesExist(string path)
         {
             bool filesExist = 
-                Directory.GetFiles(textBox_folderPath.Text).Length > 0 
+                Directory.GetFiles(path).Length > 0 
                 ? true : false;
 
             return filesExist;
@@ -57,18 +126,8 @@ namespace FileRenamer
                 if (folderDialog.ShowDialog() == DialogResult.OK)
                 {
                     textBox_folderPath.Text = folderDialog.SelectedPath;
-
-                    if (getFileList())
-                    {
-                        sortFiles();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Folder does not contain files");
-                    }
                 }
             }
-        }
-
+        }        
     }
 }

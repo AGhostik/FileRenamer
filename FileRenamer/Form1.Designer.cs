@@ -31,6 +31,7 @@
             this.button_browse = new System.Windows.Forms.Button();
             this.button_rename = new System.Windows.Forms.Button();
             this.textBox_folderPath = new System.Windows.Forms.TextBox();
+            this.checkBox_subfolders = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // button_browse
@@ -59,12 +60,26 @@
             this.textBox_folderPath.Name = "textBox_folderPath";
             this.textBox_folderPath.Size = new System.Drawing.Size(361, 22);
             this.textBox_folderPath.TabIndex = 2;
+            this.textBox_folderPath.Text = "C:\\Users\\Undead\\Downloads\\Test";
+            // 
+            // checkBox_subfolders
+            // 
+            this.checkBox_subfolders.AutoSize = true;
+            this.checkBox_subfolders.Checked = true;
+            this.checkBox_subfolders.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_subfolders.Location = new System.Drawing.Point(309, 45);
+            this.checkBox_subfolders.Name = "checkBox_subfolders";
+            this.checkBox_subfolders.Size = new System.Drawing.Size(156, 21);
+            this.checkBox_subfolders.TabIndex = 3;
+            this.checkBox_subfolders.Text = "including subfolders";
+            this.checkBox_subfolders.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(477, 78);
+            this.Controls.Add(this.checkBox_subfolders);
             this.Controls.Add(this.textBox_folderPath);
             this.Controls.Add(this.button_rename);
             this.Controls.Add(this.button_browse);
@@ -81,6 +96,7 @@
         private System.Windows.Forms.Button button_browse;
         private System.Windows.Forms.Button button_rename;
         private System.Windows.Forms.TextBox textBox_folderPath;
+        private System.Windows.Forms.CheckBox checkBox_subfolders;
     }
 }
 
