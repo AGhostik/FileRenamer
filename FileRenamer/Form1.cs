@@ -33,7 +33,12 @@ namespace FileRenamer
                 }
                 else
                 {
-
+                    if (checkFilesExist(textBox_folderPath.Text))
+                    {
+                        cleanTempFolder(textBox_folderPath.Text);
+                        getSortedFiles(textBox_folderPath.Text);
+                        renameFiles(textBox_folderPath.Text);
+                    }
                 }
 
                 MessageBox.Show("Done");              

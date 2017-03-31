@@ -60,7 +60,6 @@
             this.textBox_folderPath.Name = "textBox_folderPath";
             this.textBox_folderPath.Size = new System.Drawing.Size(361, 22);
             this.textBox_folderPath.TabIndex = 2;
-            this.textBox_folderPath.Text = "C:\\Users\\Undead\\Downloads\\Test";
             // 
             // checkBox_subfolders
             // 
@@ -85,7 +84,7 @@
             this.Controls.Add(this.button_browse);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "Form1";
-            this.Text = "RenameFiles";
+            this.Text = "NumericRenameFilesBySize";
             this.ResumeLayout(false);
             this.PerformLayout();
 
