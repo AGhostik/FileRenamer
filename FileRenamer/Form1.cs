@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Xml;
 
 namespace FileRenamer
 {
@@ -16,14 +17,26 @@ namespace FileRenamer
         public Form1()
         {
             InitializeComponent();
+            foreachDataLoad();
         }
 
         //var
         public bool optionsIsOpened = false;
+        public string optionsFilename = "FileRenamerOptions.xml";
 
-        private List<string> files;
-        private uint filesCount;        
+        public List<string> ignoreExt = new List<string>();
+        public List<string> ignoreF = new List<string>();
+
+        private List<string> files;        
+        private uint filesCount;
         //var
+
+        public void reloadOptions()
+        {
+            ignoreExt.Clear();
+            ignoreF.Clear();
+            foreachDataLoad();
+        }
 
         private void button_rename_Click(object sender, EventArgs e)
         {
@@ -63,6 +76,34 @@ namespace FileRenamer
                 Form_options options = new Form_options();
                 options.Owner = this;
                 options.Show();
+            }
+        }
+
+        private void foreachDataLoad()
+        {
+            if (File.Exists(Directory.GetCurrentDirectory() + '\\' + optionsFilename))
+            {
+                XmlDocument xmlFile = new XmlDocument();
+                xmlFile.Load(Directory.GetCurrentDirectory() + '\\' + optionsFilename);
+                foreach (XmlElement node in xmlFile.DocumentElement)
+                {
+                    if (node.Name == "Extensions")
+                    {
+                        foreach (XmlNode childnode in node.ChildNodes)
+                        {
+                            if (childnode.InnerText != string.Empty)
+                                ignoreExt.Add(childnode.InnerText);
+                        }
+                    }
+                    if (node.Name == "Folders")
+                    {
+                        foreach (XmlNode childnode in node.ChildNodes)
+                        {
+                            if (childnode.InnerText != string.Empty)
+                                ignoreF.Add(childnode.InnerText);
+                        }
+                    }
+                }
             }
         }
 

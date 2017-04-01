@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using System.IO;
 
 namespace FileRenamer
 {
@@ -23,6 +24,7 @@ namespace FileRenamer
         private void button_save_Click(object sender, EventArgs e)
         {
             saveToFile();
+            parent.reloadOptions();
             parent.optionsIsOpened = false;
             Close();
         }
@@ -40,12 +42,13 @@ namespace FileRenamer
 
         private void Form_options_Load(object sender, EventArgs e)
         {
-            parent = this.Owner as Form1;
+            parent = this.Owner as Form1;            
+            setLoadedOptions();
         }
 
         private void saveToFile()
         {
-            string filename = "FileRenamerOptions.xml";
+            string filename = parent.optionsFilename;
 
             XmlDocument xmlFile = new XmlDocument();
             XmlNode rootNode = xmlFile.CreateElement("Options");
@@ -61,14 +64,14 @@ namespace FileRenamer
             fNode.InnerText = "";
             rootNode.AppendChild(fNode);
 
-            xmlForeachData(xmlFile, extNode, 0);
+            foreachDataSave(xmlFile, extNode, "ext_", 0);
 
-            xmlForeachData(xmlFile, fNode, 1);
+            foreachDataSave(xmlFile, fNode, "f_", 1);
 
-            xmlFile.Save(System.IO.Directory.GetCurrentDirectory() + '\\' + filename);
+            xmlFile.Save(Directory.GetCurrentDirectory() + '\\' + filename);
         }
 
-        private void xmlForeachData(XmlDocument xmlFile, XmlNode parent, int column)
+        private void foreachDataSave(XmlDocument xmlFile, XmlNode parent, string namePrefix, int column)
         {
             if (dataGridView1.RowCount > 0)
             {
@@ -76,7 +79,7 @@ namespace FileRenamer
                 {
                     if (dataGridView1.Rows[i].Cells[column].Value != null)
                     {
-                        XmlNode temp = xmlFile.CreateElement(i.ToString());
+                        XmlNode temp = xmlFile.CreateElement(namePrefix + i.ToString());
                         temp.InnerText = dataGridView1.Rows[i].Cells[column].Value.ToString();
                         parent.AppendChild(temp);
                     }
@@ -89,6 +92,36 @@ namespace FileRenamer
             else
             {
                 return;
+            }
+        }
+
+        private void setLoadedOptions()
+        {
+            dataGridView1.Rows.Clear();
+
+            if (File.Exists(Directory.GetCurrentDirectory() + '\\' + parent.optionsFilename))
+            {
+                int count = 0;
+                foreach (string s in parent.ignoreExt)
+                {
+                    if (dataGridView1.Rows.Count <= count + 1)
+                    {
+                        dataGridView1.Rows.Add();
+                    }
+                    dataGridView1.Rows[count].Cells[0].Value = s;                    
+                    count++;
+                }
+
+                count = 0;
+                foreach (string s in parent.ignoreF)
+                {
+                    if (dataGridView1.Rows.Count <= count + 1)
+                    {
+                        dataGridView1.Rows.Add();
+                    }
+                    dataGridView1.Rows[count].Cells[1].Value = s;
+                    count++;
+                }
             }
         }
     }
