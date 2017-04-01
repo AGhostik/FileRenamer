@@ -19,8 +19,10 @@ namespace FileRenamer
         }
 
         //var
-        List<string> files;
-        uint filesCount;
+        public bool optionsIsOpened = false;
+
+        private List<string> files;
+        private uint filesCount;        
         //var
 
         private void button_rename_Click(object sender, EventArgs e)
@@ -50,6 +52,18 @@ namespace FileRenamer
         private void button_browse_Click(object sender, EventArgs e)
         {
             selectFolder();
+        }
+
+        private void button_options_Click(object sender, EventArgs e)
+        {
+            if (!optionsIsOpened)
+            {
+                optionsIsOpened = true;
+
+                Form_options options = new Form_options();
+                options.Owner = this;
+                options.Show();
+            }
         }
 
         private void recursionFindAll(string path)
@@ -136,6 +150,6 @@ namespace FileRenamer
                     textBox_folderPath.Text = folderDialog.SelectedPath;
                 }
             }
-        }        
+        }
     }
 }
