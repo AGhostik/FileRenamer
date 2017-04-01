@@ -29,10 +29,11 @@
         private void InitializeComponent()
         {
             this.button_save = new System.Windows.Forms.Button();
-            this.button_cancel = new System.Windows.Forms.Button();
+            this.button_pickF = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.Extension = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Folder = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -46,15 +47,15 @@
             this.button_save.UseVisualStyleBackColor = true;
             this.button_save.Click += new System.EventHandler(this.button_save_Click);
             // 
-            // button_cancel
+            // button_pickF
             // 
-            this.button_cancel.Location = new System.Drawing.Point(347, 12);
-            this.button_cancel.Name = "button_cancel";
-            this.button_cancel.Size = new System.Drawing.Size(72, 28);
-            this.button_cancel.TabIndex = 1;
-            this.button_cancel.Text = "Cancel";
-            this.button_cancel.UseVisualStyleBackColor = true;
-            this.button_cancel.Click += new System.EventHandler(this.button_cancel_Click);
+            this.button_pickF.Location = new System.Drawing.Point(309, 12);
+            this.button_pickF.Name = "button_pickF";
+            this.button_pickF.Size = new System.Drawing.Size(110, 28);
+            this.button_pickF.TabIndex = 1;
+            this.button_pickF.Text = "Pick folder";
+            this.button_pickF.UseVisualStyleBackColor = true;
+            this.button_pickF.Click += new System.EventHandler(this.button_pickF_Click);
             // 
             // dataGridView1
             // 
@@ -85,13 +86,23 @@
             this.Folder.Name = "Folder";
             this.Folder.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(90, 18);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(158, 17);
+            this.label1.TabIndex = 3;
+            this.label1.Text = "Program will ignore this:";
+            // 
             // Form_options
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(431, 336);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.dataGridView1);
-            this.Controls.Add(this.button_cancel);
+            this.Controls.Add(this.button_pickF);
             this.Controls.Add(this.button_save);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
@@ -103,15 +114,17 @@
             this.Load += new System.EventHandler(this.Form_options_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
 
         private System.Windows.Forms.Button button_save;
-        private System.Windows.Forms.Button button_cancel;
+        private System.Windows.Forms.Button button_pickF;
         private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.DataGridViewTextBoxColumn Extension;
         private System.Windows.Forms.DataGridViewTextBoxColumn Folder;
+        private System.Windows.Forms.Label label1;
     }
 }

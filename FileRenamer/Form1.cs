@@ -123,7 +123,17 @@ namespace FileRenamer
             {
                 foreach (string folder in subfolders) //folder - full path
                 {
+                    foreach (string fold in ignoreF)
+                    {
+                        if (folder == fold)
+                        {
+                            goto skip_folder;
+                        }
+                    }
+
                     recursionFindAll(folder);
+
+                    skip_folder:;
                 }
             }
             else
@@ -140,11 +150,21 @@ namespace FileRenamer
 
             foreach (string s in files)
             {
-                string filename = counter + Path.GetExtension(s).ToLower();
+                string extension = Path.GetExtension(s).ToLower();
+                foreach (string ext in ignoreExt)
+                {
+                    if ('.' + ext == extension)
+                    {
+                        goto skip_file;
+                    }
+                }
+                string filename = counter + extension;
                 File.Move(s, path + "\\_temp\\" + filename);
                 temp_files.Add(path + "\\_temp\\" + filename);
                 files_name.Add(filename);
                 counter++;
+
+            skip_file:;
             }
 
             counter = 0;

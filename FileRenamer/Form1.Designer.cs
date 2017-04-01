@@ -119,10 +119,10 @@
 
         private System.Windows.Forms.Button button_browse;
         private System.Windows.Forms.Button button_rename;
-        private System.Windows.Forms.TextBox textBox_folderPath;
         private System.Windows.Forms.CheckBox checkBox_subfolders;
         private System.Windows.Forms.Label label;
         private System.Windows.Forms.Button button_options;
+        public System.Windows.Forms.TextBox textBox_folderPath;
     }
 }
 

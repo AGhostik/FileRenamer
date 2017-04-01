@@ -29,10 +29,9 @@ namespace FileRenamer
             Close();
         }
 
-        private void button_cancel_Click(object sender, EventArgs e)
+        private void button_pickF_Click(object sender, EventArgs e)
         {
-            parent.optionsIsOpened = false;
-            Close();
+            pickFolderDialog();
         }
 
         private void Form_options_FormClosed(object sender, FormClosedEventArgs e)
@@ -44,6 +43,31 @@ namespace FileRenamer
         {
             parent = this.Owner as Form1;            
             setLoadedOptions();
+        }
+
+        private void pickFolderDialog()
+        {
+            using (FolderBrowserDialog folderDialog = new FolderBrowserDialog())
+            {
+                folderDialog.SelectedPath = parent.textBox_folderPath.Text;
+                if (folderDialog.ShowDialog() == DialogResult.OK)
+                {
+                    for (int i = 0; i < dataGridView1.Rows.Count; i++)
+                    {
+                        if (dataGridView1.Rows[i].Cells[1].Value == null)
+                        {
+                            if (i + 1 == dataGridView1.Rows.Count)
+                            {
+                                dataGridView1.Rows.Add();
+                            }
+
+                            dataGridView1.Rows[i].Cells[1].Value = folderDialog.SelectedPath;
+                            
+                            return;
+                        }
+                    }
+                }
+            }
         }
 
         private void saveToFile()
@@ -64,34 +88,28 @@ namespace FileRenamer
             fNode.InnerText = "";
             rootNode.AppendChild(fNode);
 
-            foreachDataSave(xmlFile, extNode, "ext_", 0);
+            foreachDataSave(xmlFile, extNode, "ext_", 0, true);
 
             foreachDataSave(xmlFile, fNode, "f_", 1);
 
             xmlFile.Save(Directory.GetCurrentDirectory() + '\\' + filename);
         }
 
-        private void foreachDataSave(XmlDocument xmlFile, XmlNode parent, string namePrefix, int column)
+        private void foreachDataSave(XmlDocument xmlFile, XmlNode parent, string namePrefix, int column, bool valueToLower = false)
         {
-            if (dataGridView1.RowCount > 0)
+            for (int i = 0; i < dataGridView1.RowCount; i++)
             {
-                for (int i = 0; i < dataGridView1.RowCount; i++)
+                if (dataGridView1.Rows[i].Cells[column].Value != null)
                 {
-                    if (dataGridView1.Rows[i].Cells[column].Value != null)
+                    XmlNode temp = xmlFile.CreateElement(namePrefix + i.ToString());
+                    string text = dataGridView1.Rows[i].Cells[column].Value.ToString();
+                    if (valueToLower)
                     {
-                        XmlNode temp = xmlFile.CreateElement(namePrefix + i.ToString());
-                        temp.InnerText = dataGridView1.Rows[i].Cells[column].Value.ToString();
-                        parent.AppendChild(temp);
+                        text = text.ToLower();
                     }
-                    else
-                    {
-                        break;
-                    }
+                    temp.InnerText = text;
+                    parent.AppendChild(temp);
                 }
-            }
-            else
-            {
-                return;
             }
         }
 
