@@ -49,7 +49,7 @@
             // 
             // button_pickF
             // 
-            this.button_pickF.Location = new System.Drawing.Point(309, 12);
+            this.button_pickF.Location = new System.Drawing.Point(454, 12);
             this.button_pickF.Name = "button_pickF";
             this.button_pickF.Size = new System.Drawing.Size(110, 28);
             this.button_pickF.TabIndex = 1;
@@ -67,7 +67,7 @@
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersVisible = false;
             this.dataGridView1.RowTemplate.Height = 24;
-            this.dataGridView1.Size = new System.Drawing.Size(407, 278);
+            this.dataGridView1.Size = new System.Drawing.Size(552, 278);
             this.dataGridView1.TabIndex = 2;
             this.dataGridView1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dataGridView1_KeyDown);
             // 
@@ -100,7 +100,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(431, 336);
+            this.ClientSize = new System.Drawing.Size(576, 336);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.button_pickF);
@@ -109,6 +109,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Form_options";
+            this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.Text = "Options";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form_options_FormClosed);

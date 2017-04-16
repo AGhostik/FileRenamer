@@ -28,7 +28,10 @@ namespace FileRenamer
         public List<string> ignoreF = new List<string>();
 
         private List<string> files;        
-        private uint filesCount;
+        private int allFilesCount_global;
+        private int currentFilesCount_global;
+        private int allFilesCount_local;
+        //private int currentFilesCount_local;
         //var
 
         public void reloadOptions()
@@ -42,23 +45,16 @@ namespace FileRenamer
         {
             if (Directory.Exists(textBox_folderPath.Text))
             {
-                filesCount = 0;
+                if (!optionsIsOpened)
+                {
+                    allFilesCount_global = 0;
+                    currentFilesCount_global = 0;
 
-                if (checkBox_subfolders.Checked)
-                {
-                    recursionFindAll(textBox_folderPath.Text);
+                    progressBarEnable();
+                    controlsDisable();
+
+                    backgroundWorker.RunWorkerAsync();
                 }
-                else
-                {
-                    if (checkFilesExist(textBox_folderPath.Text))
-                    {
-                        cleanTempFolder(textBox_folderPath.Text);
-                        getSortedFiles(textBox_folderPath.Text);
-                        renameFiles(textBox_folderPath.Text);
-                    }
-                }
-                label.Text = filesCount + " files renamed!";
-                MessageBox.Show("Done");              
             }
         }
 
@@ -77,6 +73,78 @@ namespace FileRenamer
                 options.Owner = this;
                 options.Show();
             }
+        }
+
+        private void button_cancel_Click(object sender, EventArgs e)
+        {
+            backgroundWorker.CancelAsync();
+        }
+
+        private void backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            progressBarDisable();
+            controlsEnable();
+            label.Text = currentFilesCount_global + " files renamed!";
+            MessageBox.Show("Done");
+        }
+
+        private void backgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            progressBar_local.Value = e.ProgressPercentage;
+            progressBar_global.Value = (currentFilesCount_global * 100) / allFilesCount_global;
+        }
+
+        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        {
+            if (checkBox_subfolders.Checked)
+            {
+                recursionFindAll(textBox_folderPath.Text);
+            }
+            else
+            {
+                if (checkFilesExist(textBox_folderPath.Text))
+                {
+                    cleanTempFolder(textBox_folderPath.Text);
+                    getSortedFiles(textBox_folderPath.Text);
+                    renameFiles(textBox_folderPath.Text);
+                }
+            }
+        }
+
+        private void controlsEnable()
+        {
+            button_browse.Enabled = true;
+            button_options.Enabled = true;
+
+            textBox_folderPath.ReadOnly = false;
+
+            button_rename.Visible = true;
+            button_cancel.Visible = false;
+        }
+
+        private void controlsDisable()
+        {
+            button_browse.Enabled = false;
+            button_options.Enabled = false;
+
+            textBox_folderPath.ReadOnly = true;
+
+            button_rename.Visible = false;
+            button_cancel.Visible = true;
+        }
+
+        private void progressBarEnable()
+        {
+            progressBar_global.Visible = true;
+            progressBar_local.Visible = true;
+            label.Visible = false;
+        }
+
+        private void progressBarDisable()
+        {
+            progressBar_global.Visible = false;
+            progressBar_local.Visible = false;
+            label.Visible = true;
         }
 
         private void LoadOptions()
@@ -114,6 +182,9 @@ namespace FileRenamer
 
         private void recursionFindAll(string path)
         {
+            if (backgroundWorker.CancellationPending)
+                return;
+
             if (checkFilesExist(path))
             {
                 cleanTempFolder(path);
@@ -151,7 +222,7 @@ namespace FileRenamer
         {
             int counter = 0;
             List<string> temp_files = new List<string>();
-            List<string> files_name = new List<string>();
+            List<string> files_name = new List<string>();          
 
             foreach (string s in files)
             {
@@ -160,6 +231,8 @@ namespace FileRenamer
                 {
                     if ('.' + ext == extension)
                     {
+                        allFilesCount_global--;
+                        allFilesCount_local--;
                         goto skip_file;
                     }
                 }
@@ -172,11 +245,18 @@ namespace FileRenamer
             skip_file:;
             }
 
-            counter = 0;
-            foreach (string s in temp_files)
-            {
-                File.Move(s, path + '\\' + files_name[counter]);
-                counter++;
+            if (counter > 0)
+            {                
+                counter = 0;
+                foreach (string s in temp_files)
+                {
+                    File.Move(s, path + '\\' + files_name[counter]);
+                    
+                    currentFilesCount_global++;
+                    counter++;
+
+                    backgroundWorker.ReportProgress( (counter * 100)/allFilesCount_local );
+                }
             }
 
             Directory.Delete(path + "\\_temp", true);
@@ -194,8 +274,10 @@ namespace FileRenamer
 
         private void getSortedFiles(string path)
         {           
-            files = Directory.GetFiles(path).OrderBy(f => new FileInfo(f).Length).ToList(); //магическая строка, якобы сортирующая файлы по размеру
-            filesCount += (uint)files.Count;
+            files = Directory.GetFiles(path).OrderBy(f => new FileInfo(f).Length).ToList();
+            //магическая строка, якобы сортирующая файлы по размеру   
+            allFilesCount_global += files.Count;
+            allFilesCount_local = files.Count;
         }
 
         private bool checkFilesExist(string path)
@@ -220,6 +302,6 @@ namespace FileRenamer
                     textBox_folderPath.Text = folderDialog.SelectedPath;
                 }
             }
-        }
+        }        
     }
 }
