@@ -153,8 +153,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Form1";
-            this.ShowIcon = false;
-            this.Text = "Rename.files";
+            this.Text = "Rename.file";
             this.ResumeLayout(false);
             this.PerformLayout();
 

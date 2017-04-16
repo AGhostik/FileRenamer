@@ -51,8 +51,8 @@ namespace FileRenamer
             {
                 deleteCell();
             }
-        }
-        
+        }               
+
         private void deleteCell()
         {
             if (dataGridView1.SelectedCells != null)
@@ -118,7 +118,7 @@ namespace FileRenamer
             xmlFile.Save(Directory.GetCurrentDirectory() + '\\' + filename);
         }
 
-        private void foreachDataSave(XmlDocument xmlFile, XmlNode parent, string namePrefix, int column, bool valueToLower = false)
+        private void foreachDataSave(XmlDocument xmlFile, XmlNode parent, string namePrefix, int column, bool isExtension = false)
         {
             for (int i = 0; i < dataGridView1.RowCount; i++)
             {
@@ -126,14 +126,28 @@ namespace FileRenamer
                 {
                     XmlNode temp = xmlFile.CreateElement(namePrefix + i.ToString());
                     string text = dataGridView1.Rows[i].Cells[column].Value.ToString();
-                    if (valueToLower)
+                    if (isExtension)
                     {
-                        text = text.ToLower();
+                        text = normExtension(text);
                     }
                     temp.InnerText = text;
                     parent.AppendChild(temp);
                 }
             }
+        }
+
+        private string normExtension(string ext)
+        {
+            string out_ext = string.Empty;
+            foreach (char c in ext.ToLower())
+            {
+                if ((c >= 'a' && c <= 'z') ||
+                    (c >= '0' && c <= '9') )
+                {
+                    out_ext += c;
+                }
+            }
+            return out_ext;
         }
 
         private void setLoadedOptions()
@@ -164,6 +178,6 @@ namespace FileRenamer
                     count++;
                 }
             }
-        }        
+        }
     }
 }

@@ -111,7 +111,7 @@
             this.Name = "Form_options";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
-            this.Text = "Options";
+            this.Text = "Rename.file - Options";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form_options_FormClosed);
             this.Load += new System.EventHandler(this.Form_options_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();

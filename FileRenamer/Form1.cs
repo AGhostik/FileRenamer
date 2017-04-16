@@ -165,7 +165,7 @@ namespace FileRenamer
                         foreach (XmlNode childnode in node.ChildNodes)
                         {
                             if (childnode.InnerText != string.Empty)
-                                ignoreExt.Add(childnode.InnerText);
+                                ignoreExt.Add( normExtension(childnode.InnerText) );
                         }
                     }
                     if (node.Name == "Folders")
@@ -178,6 +178,20 @@ namespace FileRenamer
                     }
                 }
             }
+        }
+
+        private string normExtension(string ext)
+        {
+            string out_ext = string.Empty;
+            foreach (char c in ext.ToLower())
+            {
+                if ((c >= 'a' && c <= 'z') ||
+                    (c >= '0' && c <= '9'))
+                {
+                    out_ext += c;
+                }
+            }
+            return out_ext;
         }
 
         private void recursionFindAll(string path)
