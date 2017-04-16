@@ -43,6 +43,25 @@ namespace FileRenamer
         {
             parent = this.Owner as Form1;            
             setLoadedOptions();
+        }        
+
+        private void dataGridView1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete)
+            {
+                deleteCell();
+            }
+        }
+        
+        private void deleteCell()
+        {
+            if (dataGridView1.SelectedCells != null)
+            {
+                foreach (DataGridViewCell cell in dataGridView1.SelectedCells)
+                {
+                    cell.Value = null;
+                }
+            }
         }
 
         private void pickFolderDialog()
@@ -78,7 +97,11 @@ namespace FileRenamer
             XmlNode rootNode = xmlFile.CreateElement("Options");
             xmlFile.AppendChild(rootNode);
 
-            XmlNode extNode, fNode;
+            XmlNode pathNode, extNode, fNode;
+
+            pathNode = xmlFile.CreateElement("Path");
+            pathNode.InnerText = parent.textBox_folderPath.Text;
+            rootNode.AppendChild(pathNode);
 
             extNode = xmlFile.CreateElement("Extensions");
             extNode.InnerText = "";
@@ -141,6 +164,6 @@ namespace FileRenamer
                     count++;
                 }
             }
-        }
+        }        
     }
 }

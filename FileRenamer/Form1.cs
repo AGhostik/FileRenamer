@@ -17,7 +17,7 @@ namespace FileRenamer
         public Form1()
         {
             InitializeComponent();
-            foreachDataLoad();
+            LoadOptions();
         }
 
         //var
@@ -35,7 +35,7 @@ namespace FileRenamer
         {
             ignoreExt.Clear();
             ignoreF.Clear();
-            foreachDataLoad();
+            LoadOptions();
         }
 
         private void button_rename_Click(object sender, EventArgs e)
@@ -79,7 +79,7 @@ namespace FileRenamer
             }
         }
 
-        private void foreachDataLoad()
+        private void LoadOptions()
         {
             if (File.Exists(Directory.GetCurrentDirectory() + '\\' + optionsFilename))
             {
@@ -87,6 +87,11 @@ namespace FileRenamer
                 xmlFile.Load(Directory.GetCurrentDirectory() + '\\' + optionsFilename);
                 foreach (XmlElement node in xmlFile.DocumentElement)
                 {
+                    if (node.Name == "Path")
+                    {
+                        if (node.InnerText != string.Empty)
+                            textBox_folderPath.Text = node.InnerText;
+                    }
                     if (node.Name == "Extensions")
                     {
                         foreach (XmlNode childnode in node.ChildNodes)
@@ -206,6 +211,10 @@ namespace FileRenamer
         {
             using (FolderBrowserDialog folderDialog = new FolderBrowserDialog())
             {
+                if (textBox_folderPath.Text != string.Empty)
+                {
+                    folderDialog.SelectedPath = textBox_folderPath.Text;
+                }
                 if (folderDialog.ShowDialog() == DialogResult.OK)
                 {
                     textBox_folderPath.Text = folderDialog.SelectedPath;
