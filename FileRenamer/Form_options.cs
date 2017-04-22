@@ -91,7 +91,7 @@ namespace FileRenamer
 
         private void saveToFile()
         {
-            string filename = parent.optionsFilename;
+            string filename = parent.getOptionsFilename();
 
             XmlDocument xmlFile = new XmlDocument();
             XmlNode rootNode = xmlFile.CreateElement("Options");
@@ -154,7 +154,7 @@ namespace FileRenamer
         {
             dataGridView1.Rows.Clear();
 
-            if (File.Exists(Directory.GetCurrentDirectory() + '\\' + parent.optionsFilename))
+            if (File.Exists(Directory.GetCurrentDirectory() + '\\' + parent.getOptionsFilename()))
             {
                 int count = 0;
                 foreach (string s in parent.ignoreExt)

@@ -163,14 +163,15 @@
 
         private System.Windows.Forms.Button button_browse;
         private System.Windows.Forms.Button button_rename;
-        private System.Windows.Forms.CheckBox checkBox_subfolders;
-        private System.Windows.Forms.Label label;
-        private System.Windows.Forms.Button button_options;
-        public System.Windows.Forms.TextBox textBox_folderPath;
-        private System.Windows.Forms.ProgressBar progressBar_global;
-        private System.ComponentModel.BackgroundWorker backgroundWorker;
-        private System.Windows.Forms.ProgressBar progressBar_local;
         private System.Windows.Forms.Button button_cancel;
+        private System.Windows.Forms.Button button_options;
+        private System.ComponentModel.BackgroundWorker backgroundWorker;
+        private System.Windows.Forms.CheckBox checkBox_subfolders;
+        private System.Windows.Forms.Label label;        
+        public System.Windows.Forms.TextBox textBox_folderPath;
+        private System.Windows.Forms.ProgressBar progressBar_global;        
+        private System.Windows.Forms.ProgressBar progressBar_local;
+        
     }
 }
 
