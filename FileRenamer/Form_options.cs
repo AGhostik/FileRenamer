@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using System.IO;
@@ -21,24 +14,26 @@ namespace FileRenamer
 
         Form1 parent;
 
-        private void button_save_Click(object sender, EventArgs e)
+        private void Form_options_FormClosing(object sender, FormClosingEventArgs e)
         {
-            saveToFile();
-            parent.reloadOptions();
-            parent.optionsIsOpened = false;
-            Close();
+            DialogResult result = MessageBox.Show("Do you want to save options?",
+                "Rename.file",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                saveToFile();
+                parent.reloadOptions();
+                parent.optionsIsOpened = false;
+            }
         }
 
         private void button_pickF_Click(object sender, EventArgs e)
         {
             pickFolderDialog();
         }
-
-        private void Form_options_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            parent.optionsIsOpened = false;
-        }
-
+        
         private void Form_options_Load(object sender, EventArgs e)
         {
             parent = this.Owner as Form1;            
@@ -97,11 +92,19 @@ namespace FileRenamer
             XmlNode rootNode = xmlFile.CreateElement("Options");
             xmlFile.AppendChild(rootNode);
 
-            XmlNode pathNode, extNode, fNode;
+            XmlNode tempNode, extNode, fNode;
 
-            pathNode = xmlFile.CreateElement("Path");
-            pathNode.InnerText = parent.textBox_folderPath.Text;
-            rootNode.AppendChild(pathNode);
+            tempNode = xmlFile.CreateElement("Path");
+            tempNode.InnerText = parent.textBox_folderPath.Text;
+            rootNode.AppendChild(tempNode);
+
+            tempNode = xmlFile.CreateElement("Mask");
+            tempNode.InnerText = textBox_mask.Text;
+            rootNode.AppendChild(tempNode);
+
+            tempNode = xmlFile.CreateElement("Mask_extension");
+            tempNode.InnerText = comboBox_ext.Text;
+            rootNode.AppendChild(tempNode);
 
             extNode = xmlFile.CreateElement("Extensions");
             extNode.InnerText = "";
@@ -128,7 +131,7 @@ namespace FileRenamer
                     string text = dataGridView1.Rows[i].Cells[column].Value.ToString();
                     if (isExtension)
                     {
-                        text = normExtension(text);
+                        text = optionsExtAllowed(text);
                     }
                     temp.InnerText = text;
                     parent.AppendChild(temp);
@@ -136,7 +139,7 @@ namespace FileRenamer
             }
         }
 
-        private string normExtension(string ext)
+        private string optionsExtAllowed(string ext)
         {
             string out_ext = string.Empty;
             foreach (char c in ext.ToLower())
@@ -179,5 +182,7 @@ namespace FileRenamer
                 }
             }
         }
+
+        
     }
 }

@@ -14,7 +14,7 @@ namespace FileRenamer
         public Form1()
         {
             InitializeComponent();
-            LoadOptions();
+            loadOptions();
         }
 
         //var
@@ -28,16 +28,18 @@ namespace FileRenamer
         private const string optionsFilename = "FileRenamerOptions.xml";
 
         private List<string> files;
-        private int filesCountAll_global;
-        private int filesCountCurrent_global;
-        private int filesCountAll_local;
+        private List<string> folders;
+        private int filesCountAll;
+        private int filesCountCurrent;
+        private bool maskExt_toLower;
+        private string mask;
         //var
 
         public void reloadOptions()
         {
             ignoreExt.Clear();
             ignoreF.Clear();
-            LoadOptions();
+            loadOptions();
         }
 
         public string getOptionsFilename()
@@ -47,16 +49,12 @@ namespace FileRenamer
 
         private void button_rename_Click(object sender, EventArgs e)
         {
-            logCreate();
-            
+            logCreate();            
 
             if (Directory.Exists(textBox_folderPath.Text))
             {
                 if (!optionsIsOpened)
                 {
-                    filesCountAll_global = 0;
-                    filesCountCurrent_global = 0;
-
                     progressBarEnable();
                     controlsDisable();
 
@@ -91,29 +89,20 @@ namespace FileRenamer
             backgroundWorker.CancelAsync();
             logWriteLine("Work is stopped");
         }
-
-        private void backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            progressBarDisable();
-            controlsEnable();
-            label.Text = filesCountCurrent_global + " files renamed!";
-            MessageBox.Show("Done","Done");
-            logWriteLine("Work is done");
-        }
-
-        private void backgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            progressBar_local.Value = e.ProgressPercentage;
-            progressBar_global.Value = (filesCountCurrent_global * 100) / filesCountAll_global;
-        }
-
+        
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
             logWriteLine("Work is started");
 
+            filesCountAll = 0;
+            filesCountCurrent = 0;
+
+            folders = new List<string>();
+            
             if (checkBox_subfolders.Checked)
             {
                 recursionFindAll(textBox_folderPath.Text);
+                renameFiles_allFolders();
             }
             else
             {
@@ -128,6 +117,20 @@ namespace FileRenamer
             }
         }
 
+        private void backgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            progressBar_global.Value = e.ProgressPercentage;
+        }
+
+        private void backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            progressBarDisable();
+            controlsEnable();
+            label.Text = filesCountCurrent + " files renamed!";
+            MessageBox.Show("Done", "Done");
+            logWriteLine("Work is done");
+        }
+        
         private void logCreate()
         {
             using (StreamWriter logFile = new StreamWriter(logFilename))
@@ -136,6 +139,12 @@ namespace FileRenamer
 
                 logFile.WriteLine("=path=");
                 logFile.WriteLine(textBox_folderPath.Text);
+
+                logWriteLine("=mask=");
+                logFile.WriteLine(mask);
+
+                logWriteLine("=mask_extension_toLower=");
+                logFile.WriteLine(maskExt_toLower.ToString());
 
                 logFile.WriteLine("=ignoreExt=");
                 foreach (string line in ignoreExt)
@@ -152,12 +161,19 @@ namespace FileRenamer
             }
         }
 
-        private void logWriteLine(string line)
+        private void logWriteLine(string line = null)
         {
-            using (StreamWriter logFile = new StreamWriter(logFilename,true))
+            try
             {
-                logFile.WriteLine(line);
-                logFile.Close();
+                using (StreamWriter logFile = new StreamWriter(logFilename, true))
+                {
+                    logFile.WriteLine(line);
+                    logFile.Close();
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "LogFile writeLine");
             }
         }
 
@@ -192,7 +208,6 @@ namespace FileRenamer
             logWriteLine("Progress bar enabled");
 
             progressBar_global.Visible = true;
-            progressBar_local.Visible = true;
             label.Visible = false;
         }
 
@@ -201,11 +216,10 @@ namespace FileRenamer
             logWriteLine("Progress bar disabled");
 
             progressBar_global.Visible = false;
-            progressBar_local.Visible = false;
             label.Visible = true;
         }
 
-        private void LoadOptions()
+        private void loadOptions()
         {
             if (File.Exists(Directory.GetCurrentDirectory() + '\\' + optionsFilename))
             {
@@ -215,9 +229,19 @@ namespace FileRenamer
                 {
                     if (node.Name == "Path")
                     {
-                        if (node.InnerText != string.Empty)
+                        if (node.InnerText != null)
                             textBox_folderPath.Text = node.InnerText;
-                    }
+                    } else
+                    if (node.Name == "Mask")
+                    {
+                        if (node.InnerText != null)
+                            mask = node.InnerText;
+                    } else
+                    if (node.Name == "Mask_extension")
+                    {
+                        if (node.InnerText != null)
+                           maskExt_toLower = (node.InnerText == "to lower") ? true : false;
+                    } else
                     if (node.Name == "Extensions")
                     {
                         foreach (XmlNode childnode in node.ChildNodes)
@@ -225,7 +249,7 @@ namespace FileRenamer
                             if (childnode.InnerText != string.Empty)
                                 ignoreExt.Add( optionsExtAllowed(childnode.InnerText) );
                         }
-                    }
+                    } else
                     if (node.Name == "Folders")
                     {
                         foreach (XmlNode childnode in node.ChildNodes)
@@ -259,11 +283,8 @@ namespace FileRenamer
 
             if (checkFilesExist(path))
             {
-                tempFolderClean(path);
-                getSortedFiles(path);
-                renameFiles(path);
-            }
-
+                folders.Add(path);
+            }            
 
             List<string> subfolders = Directory.GetDirectories(path).ToList();
 
@@ -289,17 +310,32 @@ namespace FileRenamer
             {
                 return;
             }
-        }        
+        }
+
+        private void renameFiles_allFolders()
+        {
+            foreach (string folder in folders)
+            {
+                renameFiles(folder);
+            }
+        }
 
         private void renameFiles(string path)
         {
+            if (backgroundWorker.CancellationPending)
+                return;
+
+            logWriteLine();
+            logWriteLine("Processing in " + path);
+
             int counter = 0;
             int skip_byName = 0;
             int skip_byExt = 0;
             List<string> tempFolder_files = new List<string>();
             List<string> files_comeBack = new List<string>();
 
-            logWriteLine("Processing in " + path);
+            tempFolderClean(path);
+            getSortedFiles(path);            
 
             foreach (string file in files)
             {
@@ -307,13 +343,13 @@ namespace FileRenamer
                 {
                     counter++;
                     skip_byName++;
-                    logWriteLine("Skip file: " + file);
+                    //logWriteLine("Skip file: " + file);
                     continue;                    
                 }
                 if (skipFile_ext(file))
                 {
                     skip_byExt++;
-                    logWriteLine("Skip file: " + file);
+                    //logWriteLine("Skip file: " + file);
                     continue;
                 }
 
@@ -351,10 +387,10 @@ namespace FileRenamer
                             "; Exeption: " + e.Message);
                     }
 
-                    filesCountCurrent_global++;
+                    filesCountCurrent++;
                     counter++;
 
-                    backgroundWorker.ReportProgress( (counter * 100)/filesCountAll_local );
+                    backgroundWorker.ReportProgress( (filesCountCurrent * 100)/filesCountAll );
                 }
             }
 
@@ -381,8 +417,7 @@ namespace FileRenamer
             {
                 if ('.' + ext == extension)
                 {
-                    filesCountAll_global--;
-                    filesCountAll_local--;
+                    filesCountAll--;
                     return true;
                 }
             }
@@ -393,7 +428,14 @@ namespace FileRenamer
         {
             tempFolderDelete(path);
 
-            Directory.CreateDirectory(path + "\\_temp");
+            try
+            {
+                Directory.CreateDirectory(path + "\\_temp");
+            }
+            catch(Exception e)
+            {
+                logWriteLine("Can not create _temp directory: " + path + "\\temp; Exeption:" + e.Message);
+            }
         }
 
         private void tempFolderDelete(string path)
@@ -419,18 +461,15 @@ namespace FileRenamer
                 files.Clear();
             }
             files = Directory.GetFiles(path).OrderBy(f => new FileInfo(f).Length).ToList();
-            //магическая строка, якобы сортирующая файлы по размеру   
-            filesCountAll_global += files.Count;
-            filesCountAll_local = files.Count;
+            //магическая строка, якобы сортирующая файлы по размеру
         }
 
         private bool checkFilesExist(string path)
         {
-            bool filesExist = 
-                Directory.GetFiles(path).Length > 0 
-                ? true : false;
-
-            return filesExist;
+            List<string> f = Directory.GetFiles(path).ToList();
+            filesCountAll += f.Count;
+            return f.Count > 0 
+                ? true: false;            
         }
 
         private void selectFolder()

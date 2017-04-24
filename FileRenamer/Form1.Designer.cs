@@ -37,7 +37,6 @@
             this.button_options = new System.Windows.Forms.Button();
             this.progressBar_global = new System.Windows.Forms.ProgressBar();
             this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
-            this.progressBar_local = new System.Windows.Forms.ProgressBar();
             this.button_cancel = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
@@ -101,9 +100,9 @@
             // 
             // progressBar_global
             // 
-            this.progressBar_global.Location = new System.Drawing.Point(242, 72);
+            this.progressBar_global.Location = new System.Drawing.Point(15, 72);
             this.progressBar_global.Name = "progressBar_global";
-            this.progressBar_global.Size = new System.Drawing.Size(224, 15);
+            this.progressBar_global.Size = new System.Drawing.Size(451, 15);
             this.progressBar_global.TabIndex = 6;
             this.progressBar_global.Visible = false;
             // 
@@ -114,14 +113,6 @@
             this.backgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
             this.backgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker_ProgressChanged);
             this.backgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_RunWorkerCompleted);
-            // 
-            // progressBar_local
-            // 
-            this.progressBar_local.Location = new System.Drawing.Point(12, 72);
-            this.progressBar_local.Name = "progressBar_local";
-            this.progressBar_local.Size = new System.Drawing.Size(224, 15);
-            this.progressBar_local.TabIndex = 7;
-            this.progressBar_local.Visible = false;
             // 
             // button_cancel
             // 
@@ -139,7 +130,6 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(478, 99);
-            this.Controls.Add(this.progressBar_local);
             this.Controls.Add(this.progressBar_global);
             this.Controls.Add(this.button_options);
             this.Controls.Add(this.label);
@@ -170,7 +160,6 @@
         private System.Windows.Forms.Label label;        
         public System.Windows.Forms.TextBox textBox_folderPath;
         private System.Windows.Forms.ProgressBar progressBar_global;        
-        private System.Windows.Forms.ProgressBar progressBar_local;
         
     }
 }
