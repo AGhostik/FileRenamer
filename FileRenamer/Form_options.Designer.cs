@@ -63,6 +63,7 @@
             this.dataGridView1.RowTemplate.Height = 24;
             this.dataGridView1.Size = new System.Drawing.Size(552, 258);
             this.dataGridView1.TabIndex = 5;
+            this.dataGridView1.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellValueChanged);
             this.dataGridView1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dataGridView1_KeyDown);
             // 
             // Extension
@@ -99,6 +100,7 @@
             this.textBox_mask.TabIndex = 1;
             this.textBox_mask.Text = "[C]";
             this.textBox_mask.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBox_mask.TextChanged += new System.EventHandler(this.textBox_mask_TextChanged);
             // 
             // comboBox_ext
             // 
@@ -111,6 +113,7 @@
             this.comboBox_ext.Size = new System.Drawing.Size(109, 24);
             this.comboBox_ext.TabIndex = 2;
             this.comboBox_ext.Text = "to lower";
+            this.comboBox_ext.TextChanged += new System.EventHandler(this.comboBox_ext_TextChanged);
             // 
             // label2
             // 

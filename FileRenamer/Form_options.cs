@@ -13,20 +13,24 @@ namespace FileRenamer
         }
 
         Form1 parent;
+        bool somethingChanged = false;
 
         private void Form_options_FormClosing(object sender, FormClosingEventArgs e)
         {
-            DialogResult result = MessageBox.Show("Do you want to save options?",
-                "Rename.file",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
-
-            if (result == DialogResult.Yes)
+            if (somethingChanged)
             {
-                saveToFile();
-                parent.reloadOptions();
-                parent.optionsIsOpened = false;
+                DialogResult result = MessageBox.Show("Do you want to save options?",
+                    "Rename.file",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    saveToFile();
+                    parent.reloadOptions();                    
+                }
             }
+            parent.optionsIsOpened = false;
         }
 
         private void button_pickF_Click(object sender, EventArgs e)
@@ -103,7 +107,7 @@ namespace FileRenamer
             rootNode.AppendChild(tempNode);
 
             tempNode = xmlFile.CreateElement("Mask_extension");
-            tempNode.InnerText = comboBox_ext.Text;
+            tempNode.InnerText = (comboBox_ext.Text == "to lower" ? true : false).ToString();
             rootNode.AppendChild(tempNode);
 
             extNode = xmlFile.CreateElement("Extensions");
@@ -159,6 +163,9 @@ namespace FileRenamer
 
             if (File.Exists(Directory.GetCurrentDirectory() + '\\' + parent.getOptionsFilename()))
             {
+                textBox_mask.Text = parent.mask;
+                comboBox_ext.Text = (parent.maskExt_toLower ? "to lower" : "TO UPPER" );
+
                 int count = 0;
                 foreach (string s in parent.ignoreExt)
                 {
@@ -180,9 +187,24 @@ namespace FileRenamer
                     dataGridView1.Rows[count].Cells[1].Value = s;
                     count++;
                 }
+
+                somethingChanged = false;
             }
         }
 
-        
+        private void textBox_mask_TextChanged(object sender, EventArgs e)
+        {
+            somethingChanged = true;
+        }
+
+        private void comboBox_ext_TextChanged(object sender, EventArgs e)
+        {
+            somethingChanged = true;
+        }
+
+        private void dataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            somethingChanged = true;
+        }
     }
 }

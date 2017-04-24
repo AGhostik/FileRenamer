@@ -22,6 +22,8 @@ namespace FileRenamer
         public bool optionsIsOpened = false;        
         public List<string> ignoreExt = new List<string>();
         public List<string> ignoreF = new List<string>();
+        public bool maskExt_toLower;
+        public string mask;
 
         //private:
         private const string logFilename = "FileRenamer_Log.txt";
@@ -31,8 +33,7 @@ namespace FileRenamer
         private List<string> folders;
         private int filesCountAll;
         private int filesCountCurrent;
-        private bool maskExt_toLower;
-        private string mask;
+        private int filesCountRenamed;
         //var
 
         public void reloadOptions()
@@ -49,14 +50,14 @@ namespace FileRenamer
 
         private void button_rename_Click(object sender, EventArgs e)
         {
-            logCreate();            
-
             if (Directory.Exists(textBox_folderPath.Text))
             {
                 if (!optionsIsOpened)
-                {
-                    progressBarEnable();
+                {                    
                     controlsDisable();
+
+                    File.Delete(logFilename);
+                    File.Delete("RenamedFilesList.txt");
 
                     backgroundWorker.RunWorkerAsync();
                 }
@@ -96,12 +97,14 @@ namespace FileRenamer
 
             filesCountAll = 0;
             filesCountCurrent = 0;
+            filesCountRenamed = 0;
 
             folders = new List<string>();
             
             if (checkBox_subfolders.Checked)
             {
                 recursionFindAll(textBox_folderPath.Text);
+                
                 renameFiles_allFolders();
             }
             else
@@ -119,57 +122,74 @@ namespace FileRenamer
 
         private void backgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            progressBar_global.Value = e.ProgressPercentage;
+            if (e.ProgressPercentage == -1)
+            {
+                label.Text = folders.Count + " folders and " + filesCountAll + " files found!";
+            }
+            else
+            {
+                progressBarEnable();
+                progressBar_global.Value = e.ProgressPercentage;
+            }
         }
 
         private void backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            logWriteLine();
+
             progressBarDisable();
             controlsEnable();
-            label.Text = filesCountCurrent + " files renamed!";
+
+            label.Text = filesCountRenamed + " files renamed!";
+
             MessageBox.Show("Done", "Done");
+
+            logWriteLine(folders.Count + " folders and " + filesCountAll + " files found!");
+            logWriteLine(filesCountRenamed + " files renamed!");
             logWriteLine("Work is done");
         }
         
-        private void logCreate()
+        private void logWriteLine(string line = null, string filename = logFilename)
         {
-            using (StreamWriter logFile = new StreamWriter(logFilename))
-            {
-                logFile.WriteLine(DateTime.Today.ToUniversalTime().ToString());
-
-                logFile.WriteLine("=path=");
-                logFile.WriteLine(textBox_folderPath.Text);
-
-                logWriteLine("=mask=");
-                logFile.WriteLine(mask);
-
-                logWriteLine("=mask_extension_toLower=");
-                logFile.WriteLine(maskExt_toLower.ToString());
-
-                logFile.WriteLine("=ignoreExt=");
-                foreach (string line in ignoreExt)
-                    logFile.WriteLine(line);
-
-                logFile.WriteLine("=ignoreF=");
-                foreach (string line in ignoreF)
-                    logFile.WriteLine(line);
-
-                logFile.WriteLine("===");
-                logFile.WriteLine();
-
-                logFile.Close();
-            }
-        }
-
-        private void logWriteLine(string line = null)
-        {
+            bool firstTime = !File.Exists(filename);
             try
             {
-                using (StreamWriter logFile = new StreamWriter(logFilename, true))
+                using (StreamWriter logFile = new StreamWriter(filename, !firstTime ))
                 {
-                    logFile.WriteLine(line);
-                    logFile.Close();
-                }
+                    if (firstTime)
+                    {
+                        logFile.WriteLine(DateTime.Today.ToUniversalTime().ToString());
+
+                        logFile.WriteLine("=path=");
+                        logFile.WriteLine(textBox_folderPath.Text);
+
+                        logFile.WriteLine("=mask=");
+                        logFile.WriteLine(mask);
+
+                        logFile.WriteLine("=mask_extension_toLower=");
+                        logFile.WriteLine(maskExt_toLower.ToString());
+
+                        logFile.WriteLine("=ignoreExt=");
+                        foreach (string s in ignoreExt)
+                            logFile.WriteLine(s);
+
+                        logFile.WriteLine("=ignoreF=");
+                        foreach (string s in ignoreF)
+                            logFile.WriteLine(s);
+
+                        logFile.WriteLine("===");
+                        logFile.WriteLine();
+
+                        logFile.WriteLine(line);
+
+                        logFile.Close();
+                    }
+                    else
+                    {
+                        logFile.WriteLine(line);
+                        logFile.Close();
+                    }
+                }                    
             }
             catch (Exception e)
             {
@@ -205,18 +225,24 @@ namespace FileRenamer
 
         private void progressBarEnable()
         {
-            logWriteLine("Progress bar enabled");
+            if (!progressBar_global.Visible)
+            {
+                logWriteLine("Progress bar enabled");
 
-            progressBar_global.Visible = true;
-            label.Visible = false;
+                progressBar_global.Visible = true;
+                label.Visible = false;
+            }
         }
 
         private void progressBarDisable()
         {
-            logWriteLine("Progress bar disabled");
+            if (progressBar_global.Visible)
+            {
+                logWriteLine("Progress bar disabled");
 
-            progressBar_global.Visible = false;
-            label.Visible = true;
+                progressBar_global.Visible = false;
+                label.Visible = true;
+            }
         }
 
         private void loadOptions()
@@ -240,13 +266,13 @@ namespace FileRenamer
                     if (node.Name == "Mask_extension")
                     {
                         if (node.InnerText != null)
-                           maskExt_toLower = (node.InnerText == "to lower") ? true : false;
+                           maskExt_toLower = bool.Parse(node.InnerText);
                     } else
                     if (node.Name == "Extensions")
                     {
                         foreach (XmlNode childnode in node.ChildNodes)
                         {
-                            if (childnode.InnerText != string.Empty)
+                            if (childnode.InnerText != null)
                                 ignoreExt.Add( optionsExtAllowed(childnode.InnerText) );
                         }
                     } else
@@ -254,7 +280,7 @@ namespace FileRenamer
                     {
                         foreach (XmlNode childnode in node.ChildNodes)
                         {
-                            if (childnode.InnerText != string.Empty)
+                            if (childnode.InnerText != null)
                                 ignoreF.Add(childnode.InnerText);
                         }
                     }
@@ -264,7 +290,7 @@ namespace FileRenamer
 
         private string optionsExtAllowed(string ext)
         {
-            string out_ext = string.Empty;
+            string out_ext = null;
             foreach (char c in ext.ToLower())
             {
                 if ((c >= 'a' && c <= 'z') ||
@@ -284,7 +310,9 @@ namespace FileRenamer
             if (checkFilesExist(path))
             {
                 folders.Add(path);
-            }            
+            }
+
+            backgroundWorker.ReportProgress(-1);
 
             List<string> subfolders = Directory.GetDirectories(path).ToList();
 
@@ -333,8 +361,7 @@ namespace FileRenamer
             int skip_byExt = 0;
             List<string> tempFolder_files = new List<string>();
             List<string> files_comeBack = new List<string>();
-
-            tempFolderClean(path);
+            
             getSortedFiles(path);            
 
             foreach (string file in files)
@@ -343,32 +370,41 @@ namespace FileRenamer
                 {
                     counter++;
                     skip_byName++;
-                    //logWriteLine("Skip file: " + file);
-                    continue;                    
                 }
+                else
                 if (skipFile_ext(file))
                 {
                     skip_byExt++;
-                    //logWriteLine("Skip file: " + file);
-                    continue;
                 }
-
-                string filename_full = counter + Path.GetExtension(file).ToLower();
-
-                try
+                else
                 {
-                    File.Move(file, path + "\\_temp\\" + filename_full);
-                }
-                catch (Exception e)
-                {
-                    logWriteLine("Can not move file from: " + file + 
-                        " to: " + path + "\\_temp\\" + filename_full + 
-                        "; Exeption: " + e.Message);
-                }
+                    tempFolderClean(path);
 
-                tempFolder_files.Add(path + "\\_temp\\" + filename_full);
-                files_comeBack.Add(path + '\\' + filename_full);
-                counter++;                
+                    logWriteLine("From: " + file, "RenamedFilesList.txt");
+
+                    string filename_full = counter + Path.GetExtension(file).ToLower();
+
+                    try
+                    {
+                        File.Move(file, path + "\\_temp\\" + filename_full);
+                    }
+                    catch (Exception e)
+                    {
+                        logWriteLine("Can not move file from: " + file +
+                            " to: " + path + "\\_temp\\" + filename_full +
+                            "; Exeption: " + e.Message);
+                    }
+
+                    tempFolder_files.Add(path + "\\_temp\\" + filename_full);
+                    files_comeBack.Add(path + '\\' + filename_full);
+                    counter++;
+
+                    logWriteLine("To: " + path + '\\' + filename_full, "RenamedFilesList.txt");
+                    logWriteLine(null, "RenamedFilesList.txt");
+                }
+                filesCountCurrent++;
+                backgroundWorker.ReportProgress((filesCountCurrent * 100) / filesCountAll);
+                //end foreach
             }
 
             if (counter > 0)
@@ -387,10 +423,8 @@ namespace FileRenamer
                             "; Exeption: " + e.Message);
                     }
 
-                    filesCountCurrent++;
+                    filesCountRenamed++;
                     counter++;
-
-                    backgroundWorker.ReportProgress( (filesCountCurrent * 100)/filesCountAll );
                 }
             }
 
@@ -417,7 +451,6 @@ namespace FileRenamer
             {
                 if ('.' + ext == extension)
                 {
-                    filesCountAll--;
                     return true;
                 }
             }
@@ -476,7 +509,7 @@ namespace FileRenamer
         {
             using (FolderBrowserDialog folderDialog = new FolderBrowserDialog())
             {
-                if (textBox_folderPath.Text != string.Empty)
+                if (textBox_folderPath.Text != null)
                 {
                     folderDialog.SelectedPath = textBox_folderPath.Text;
                 }
